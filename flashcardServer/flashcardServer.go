@@ -188,13 +188,10 @@ func main() {
 	}
 	defer session.Close()
 	session.SetMode(mgo.Monotonic, true)
-	cardsCollection = session.DB("myapp").C("cards")
 
-	// GET, POST
+	cardsCollection = session.DB("flashcards").C("cards")
 	http.HandleFunc("/cards", handler)
-	// PATCH
 	http.HandleFunc("/cards/", handlerCardsPATCH)
-
 	s := &http.Server{
 		Addr:           ":8080",
 		ReadTimeout:    10 * time.Second,
