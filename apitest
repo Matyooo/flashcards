@@ -1,0 +1,44 @@
+echo BestCards-API test with cURL
+
+echo POST TEST with form data
+curl -d "question=aaa?&answer=aaa." -H "Content-Type: application/x-www-form-urlencoded" -X POST http://localhost:8080/cards
+echo
+echo POST test with JSON
+curl -d '{"question":"bbb?", "answer":"bbb."}' -H "Content-Type: application/json" -X POST http://localhost:8080/cards
+echo
+echo POST test with malformed JSON
+curl -d '{"question":"bbb?", "];"{answer":"bbb."}' -H "Content-Type: application/json" -X POST http://localhost:8080/cards
+echo
+echo POST test with JSON2 
+curl -d '{"QUESTION":"ccc?", "AnSwEr":"ccc."}' -H "Content-Type: application/json" -X POST http://localhost:8080/cards
+echo
+echo POST test with empty answer
+curl -d '{"question":"bbb?", "answer":""}' -H "Content-Type: application/json" -X POST http://localhost:8080/cards
+echo
+echo POST test with no answer field
+curl -d '{"question":"bbb?"}' -H "Content-Type: application/json" -X POST http://localhost:8080/cards
+echo
+echo
+
+echo PATCH test to modify question
+curl --request PATCH -H "Content-Type:application/json" -d '{"question":"MODIFIED QUESTION"}' http://localhost:8080/cards/5a81c6bec15395a345672193
+echo
+echo PATCH test to modify answer
+curl --request PATCH -H "Content-Type:application/json" -d '{"answer":"MODIFIED ANSWER"}' http://localhost:8080/cards/5a82a5a1c15395a345672bde
+echo
+echo PATCH test to modify both fields
+curl --request PATCH -H "Content-Type:application/json" -d '{"question":"MODIFIED QUESTION", "answer":"MODIFIED ANSWER"}' http://localhost:8080/cards/5a82b1e44542d016d5a74672
+echo
+echo PATCH test with invalid ID
+curl --request PATCH -H "Content-Type:application/json" -d '{"question":"MODIFIED QUESTION", "answer":"MODIFIED ANSWER"}' http://localhost:8080/cards/wrong
+echo
+echo PATCH test with non-existent ID
+curl --request PATCH -H "Content-Type:application/json" -d '{"question":"MODIFIED QUESTION", "answer":"MODIFIED ANSWER"}' http://localhost:8080/cards/5a82b1e44542d016d5a74673
+echo
+echo PATCH test with malformed JSON
+curl --request PATCH -H "Content-Type:application/json" -d '{"question}[:"MODIFIED QUESTION", "answer":"MODIFIED ANSWER"}' http://localhost:8080/cards/5a82a5a1c15395a345672bde
+echo
+echo
+
+echo GET test
+curl -X GET http://localhost:8080/cards
