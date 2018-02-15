@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"gopkg.in/mgo.v2"
@@ -47,9 +48,7 @@ func handlerCardsPOST(w http.ResponseWriter, r *http.Request) {
 	log.Println("POST request")
 	var resp MyResp
 	newCard := NewCard{}
-
-	switch r.Header.Get("Content-Type") {
-	case "application/json":
+	if strings.Contains(r.Header.Get("Content-Type"), "application/json") {
 		// decode JSON request into Card
 		bodyBytes, _ := ioutil.ReadAll(r.Body)
 		bodyString := string(bodyBytes)
@@ -65,8 +64,9 @@ func handlerCardsPOST(w http.ResponseWriter, r *http.Request) {
 
 		log.Printf("Request JSON data (Question: %s, Answer: %s)\n",
 			newCard.Question, newCard.Answer)
+	}
 
-	case "application/x-www-form-urlencoded":
+	if strings.Contains(r.Header.Get("Content-Type"), "application/x-www-form-urlencoded") {
 		// decode FORM request into Card
 		r.ParseForm()
 		log.Printf("Request FORM data (Question: %s, Answer: %s)\n",
@@ -130,8 +130,8 @@ func handlerCardsPATCH(w http.ResponseWriter, r *http.Request) {
 	log.Println("PATCH request")
 	id := r.URL.Path[len("/cards/"):]
 	log.Println("card ID:", id)
-
-	if r.Header.Get("Content-Type") != "application/json" {
+	log.Println(r.Header.Get("Content-Type"))
+	if !strings.Contains(r.Header.Get("Content-Type"), "application/json") {
 		// abort if Body is not JSON
 		resp := MyResp{
 			"DATA_NOT_JSON",
