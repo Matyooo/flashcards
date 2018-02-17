@@ -13,6 +13,8 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+const DB_ADDR = "localhost:27017"
+
 type Card struct {
 	Id       bson.ObjectId `json:"id" bson:"_id,omitempty"`
 	Question string        `json:"question"`
@@ -66,7 +68,8 @@ func handlerCardsPOST(w http.ResponseWriter, r *http.Request) {
 			newCard.Question, newCard.Answer)
 	}
 
-	if strings.Contains(r.Header.Get("Content-Type"), "application/x-www-form-urlencoded") {
+	if strings.Contains(r.Header.Get("Content-Type"),
+		"application/x-www-form-urlencoded") {
 		// decode FORM request into Card
 		r.ParseForm()
 		log.Printf("Request FORM data (Question: %s, Answer: %s)\n",
@@ -182,7 +185,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	var err error
-	session, err = mgo.Dial("localhost:27017")
+	session, err = mgo.Dial(DB_ADDR)
 	if err != nil {
 		panic(err)
 	}
