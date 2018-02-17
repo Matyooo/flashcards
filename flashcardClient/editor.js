@@ -18,6 +18,11 @@ class EditorScreen extends React.Component {
     answer = "";
 
     save() {
+        if (!this.valid) {
+            ToastAndroid.show("Question must end with a ? mark and be at least 8 characters long!", ToastAndroid.LONG);
+            return;
+        }
+
         if (this.props.navigation.state.params.new) {
             // POST new card
             fetch(SERVER_ADDR + "/cards", 
@@ -67,19 +72,28 @@ class EditorScreen extends React.Component {
         }
     }
 
+    validateQuestion(){
+        var regex = /.{8,}\?$/;
+        this.valid = regex.test(this.question);
+        return this.valid;
+    }
+
     render() {
         this.question = this.props.navigation.state.params.new
             ? "" : this.props.navigation.state.params.card.question;
         this.answer = this.props.navigation.state.params.new 
             ? "" : this.props.navigation.state.params.card.answer;
-
+        this.validateQuestion();
       return (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             <Text>Question</Text>
             <TextInput
                 style={{height: 40, width: '80%' }}
                 defaultValue = {this.question}
-                onChangeText={(text) => this.question = text}
+                onChangeText={(text) => {
+                    this.question = text;
+                    this.validateQuestion();
+                }}
             />
             <Text>Answer</Text>
             <TextInput

@@ -6,13 +6,9 @@ import { StackNavigator } from 'react-navigation';
 
 var ChooserScreen = require('./chooser.js');
 var EditorScreen = require('./editor.js');
-var HomeScreen = require('./home.js');
 
 
 const RootStack = StackNavigator({
-    Home: {
-      screen: HomeScreen,
-    },
     Editor: {
         screen: EditorScreen,
     },
@@ -21,7 +17,7 @@ const RootStack = StackNavigator({
     },
     },
     {
-      initialRouteName: 'Home',
+      initialRouteName: 'Chooser',
     }
 );
   
