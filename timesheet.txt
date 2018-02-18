@@ -1,0 +1,6 @@
+2018.02.10: 2 hours: install go, mongodb, liteIDE
+2018.02.12: 6 hours: create DB, developing go web server
+2018.02.15: 3 hours: setup React dev environment
+2018.02.16: 3 hours: create simple, three button app to test API calls, setup GitHub repo
+2018.02.17: 5 hours: creating GUI navigation panels, FlatList, buttons, edit form
+2018.02.18: 5 hours: creating GUI styles, form error handling, minor server modifications, error handlings

@@ -147,8 +147,8 @@ func handlerCardsPATCH(w http.ResponseWriter, r *http.Request) {
 	bodyBytes, _ := ioutil.ReadAll(r.Body)
 	bodyString := string(bodyBytes)
 	log.Println("Request JSON:", bodyString)
-	var modifier interface{}
-	err := json.Unmarshal(bodyBytes, &modifier)
+	newCard := NewCard{}
+	err := json.Unmarshal(bodyBytes, &newCard)
 	if err != nil {
 		resp := MyResp{
 			"MALFORMED_JSON",
@@ -157,11 +157,20 @@ func handlerCardsPATCH(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// check for empty answer
+	if newCard.Answer == "" {
+		resp := MyResp{
+			"ANSWER_CHECK_FAIL",
+			"Answer field must not be empty!"}
+		finishResponse(resp, w)
+		return
+	}
+
 	// recover from a bad card Id
 	defer recoverWrongId(w)
 	objId := bson.ObjectIdHex(id)
 	// update db
-	err = cardsCollection.UpdateId(objId, bson.M{"$set": modifier})
+	err = cardsCollection.UpdateId(objId, bson.M{"$set": newCard})
 	if err != nil {
 		resp := MyResp{
 			"CARD_UPDATE_FAILED",

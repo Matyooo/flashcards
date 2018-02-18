@@ -1,114 +1,163 @@
 import React from 'react';
-import { View, Text, TextInput, ToastAndroid, Button, TouchableOpacity, List, FlatList, ListItem } from 'react-native';
-
-const SERVER_ADDR = "http://192.168.1.21:8080";
+import { View, Text, TextInput, ToastAndroid, Button, StyleSheet} from 'react-native';
+import {SERVER_ADDR} from './common.js';
 
 class EditorScreen extends React.Component {
 
     constructor(props) {
         super(props);
         this.save = this.save.bind(this);
+        this.question = this.props.navigation.state.params.new
+            ? "" : this.props.navigation.state.params.card.question;
+        this.answer = this.props.navigation.state.params.new 
+            ? "" : this.props.navigation.state.params.card.answer;
+
+        this.state = {questionError : "", answerError: ""};
     }
-    
-    static navigationOptions = {
-        title: 'Edit card',
+
+    static navigationOptions = ({ navigation }) => {
+        const { params } = navigation.state;
+        
+        return {
+          title: params.new ? "New card" : "Edit card",
+        }
     };
 
-    question = "";
-    answer = "";
+
+    insertNewCard() {
+        // POST new card
+        fetch(SERVER_ADDR + "/cards", 
+        {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            "question": this.question,
+            "answer": this.answer
+        }),
+        })
+        .then((response) => response.json())
+        .then((responseJson) => {
+        if (responseJson.status != "ANSWER_CHECK_FAIL") {
+            ToastAndroid.show(responseJson.message, ToastAndroid.SHORT);
+            this.props.navigation.state.params.onGoBack();
+            this.props.navigation.goBack();    
+            this.setState({answerError:""});
+        } else {
+            this.setState({answerError:responseJson.message});
+        }
+        })
+        .catch((error) => {
+        alert(error);  
+        })
+    }
+
+
+    modifyCard() {
+        // PATCH modificate card
+        fetch(SERVER_ADDR + "/cards/" + this.props.navigation.state.params.card.id, 
+        {
+        method: 'PATCH',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            "question": this.question,
+            "answer": this.answer
+        }),
+        })
+        .then((response) => response.json())
+        .then((responseJson) => {
+        if (responseJson.status != "ANSWER_CHECK_FAIL") {
+            ToastAndroid.show(responseJson.message, ToastAndroid.SHORT);
+            this.props.navigation.state.params.onGoBack();
+            this.props.navigation.goBack();    
+            this.setState({answerError:""});
+        } else {
+            this.setState({answerError:responseJson.message});
+        }
+        })
+        .catch((error) => {
+        alert(error);  
+        })
+    }
+
+
 
     save() {
         if (!this.valid) {
-            ToastAndroid.show("Question must end with a ? mark and be at least 8 characters long!", ToastAndroid.LONG);
             return;
         }
-
         if (this.props.navigation.state.params.new) {
-            // POST new card
-            fetch(SERVER_ADDR + "/cards", 
-            {
-              method: 'POST',
-              headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                "question": this.question,
-                "answer": this.answer
-              }),
-            })
-          .then((response) => response.json())
-          .then((responseJson) => {
-            ToastAndroid.show(JSON.stringify(responseJson), ToastAndroid.SHORT);
-            this.props.navigation.state.params.onGoBack();
-            this.props.navigation.goBack();
-          })
-          .catch((error) => {
-              alert(error);  
-          })
+            this.insertNewCard();
         } else {
-            // PATCH modificate card
-            fetch(SERVER_ADDR + "/cards/" + this.props.navigation.state.params.card.id, 
-            {
-              method: 'PATCH',
-              headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                "question": this.question,
-                "answer": this.answer
-              }),
-            })
-          .then((response) => response.json())
-          .then((responseJson) => {
-            ToastAndroid.show(JSON.stringify(responseJson), ToastAndroid.SHORT);
-            this.props.navigation.state.params.onGoBack();
-            this.props.navigation.goBack();
-          })
-          .catch((error) => {
-              alert(error);  
-          })
+            this.modifyCard();
         }
     }
 
     validateQuestion(){
         var regex = /.{8,}\?$/;
         this.valid = regex.test(this.question);
+        if (this.valid) {
+            this.setState({questionError:""});
+        } else {
+            this.setState({questionError:"Question must end with ? and be at least 8 characters long!"});            
+        }
         return this.valid;
     }
 
-    render() {
-        this.question = this.props.navigation.state.params.new
-            ? "" : this.props.navigation.state.params.card.question;
-        this.answer = this.props.navigation.state.params.new 
-            ? "" : this.props.navigation.state.params.card.answer;
-        this.validateQuestion();
-      return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Text>Question</Text>
+
+    render() {    
+        return (
+            <View style={{ flex: 1}}>
+            <View style={{ flex: 5, alignItems: 'center', justifyContent: 'flex-start'}}>
+            <Text style={styles.qa}>Question</Text>
             <TextInput
                 style={{height: 40, width: '80%' }}
                 defaultValue = {this.question}
                 onChangeText={(text) => {
                     this.question = text;
-                    this.validateQuestion();
                 }}
             />
-            <Text>Answer</Text>
+            <Text style={styles.err}>{this.state.questionError}</Text>
+            <Text style={styles.qa}>Answer</Text>
             <TextInput
                 style={{height: 40, width: '80%' }}
                 defaultValue = {this.answer}
                 onChangeText={(text) => this.answer = text}
             />
-          <Button title='Save'
-            onPress={() => {
-                this.save();
-            }}
-          />
+            <Text style={styles.err}>{this.state.answerError}</Text>
+
+            </View>
+            <View style={{ flex: 1, flexDirection:'row', alignItems: 'center', justifyContent: 'space-around',
+                    backgroundColor:'lightgrey' }}>
+                <Button title='Save'
+                    onPress={() => {
+                        if (this.validateQuestion()) {
+                            this.save();
+                        }
+                    }}
+                />
+            </View>
         </View>
-      );
+        );
     }
 }
+
+const styles = StyleSheet.create({
+    qa: {
+        color: 'black',
+        fontWeight: 'bold',
+        fontSize: 20,
+      },
+      err: {
+        color: 'red',
+        fontWeight: 'bold',
+        fontSize: 15,
+      },
+  });
 
 module.exports = EditorScreen;
