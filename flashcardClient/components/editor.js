@@ -1,13 +1,13 @@
 import React from 'react';
-import { View, Text, TextInput, ToastAndroid, Button, StyleSheet} from 'react-native';
-import {SERVER_ADDR} from '../common.js';
+import { View, Text, TextInput, Button, StyleSheet} from 'react-native';
+import {insertCard, modifyCard, styles} from '../common.js';
 
 class EditorScreen extends React.Component {
 
     constructor(props) {
         super(props);
-        // TODO: Is there a better way to do this
         this.save = this.save.bind(this);
+        this.callback = this.callback.bind(this);
         this.question = this.props.navigation.state.params.new
             ? "" : this.props.navigation.state.params.card.question;
         this.answer = this.props.navigation.state.params.new 
@@ -24,75 +24,26 @@ class EditorScreen extends React.Component {
     };
 
 
-    insertNewCard() {
-        fetch(SERVER_ADDR + "/cards", 
-        {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            "question": this.question,
-            "answer": this.answer
-        }),
-        })
-        .then((response) => response.json())
-        .then((responseJson) => {
-        if (responseJson.status != "ANSWER_CHECK_FAIL") {
-            ToastAndroid.show(responseJson.message, ToastAndroid.SHORT);
-            this.props.navigation.state.params.onGoBack();
+
+    callback(response) {
+        if (response.status != "ANSWER_CHECK_FAIL") {
+            this.props.navigation.state.params.onGoBack(response.message);
             this.props.navigation.goBack();    
             this.setState({answerError:""});
         } else {
-            this.setState({answerError:responseJson.message});
-        }
-        })
-        .catch((error) => {
-        alert(error);  
-        })
-    }
-
-
-    modifyCard() {
-        fetch(SERVER_ADDR + "/cards/" + this.props.navigation.state.params.card.id, 
-        {
-        method: 'PATCH',
-        headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            "question": this.question,
-            "answer": this.answer
-        }),
-        })
-        .then((response) => response.json())
-        .then((responseJson) => {
-        if (responseJson.status != "ANSWER_CHECK_FAIL") {
-            ToastAndroid.show(responseJson.message, ToastAndroid.SHORT);
-            this.props.navigation.state.params.onGoBack();
-            this.props.navigation.goBack();    
-            this.setState({answerError:""});
-        } else {
-            this.setState({answerError:responseJson.message});
-        }
-        })
-        .catch((error) => {
-        alert(error);  
-        })
-    }
-
-
+            this.setState({answerError:response.message});
+        }        
+      }
 
     save() {
         if (!this.valid) {
             return;
         }
         if (this.props.navigation.state.params.new) {
-            this.insertNewCard();
+            insertCard(this.question, this.answer, this.callback);
         } else {
-            this.modifyCard();
+            modifyCard(this.props.navigation.state.params.card.id, 
+                this.question, this.answer, this.callback);
         }
     }
 
@@ -112,7 +63,7 @@ class EditorScreen extends React.Component {
         return (
             <View style={{ flex: 1}}>
             <View style={{ flex: 5, alignItems: 'center', justifyContent: 'flex-start'}}>
-            <Text style={styles.qa}>Question</Text>
+            <Text style={styles.qaeditor}>Question</Text>
             <TextInput
                 style={{height: 40, width: '80%', fontSize:14 }}
                 defaultValue = {this.question}
@@ -121,7 +72,7 @@ class EditorScreen extends React.Component {
                 }}
             />
             <Text style={styles.err}>{this.state.questionError}</Text>
-            <Text style={styles.qa}>Answer</Text>
+            <Text style={styles.qaeditor}>Answer</Text>
             <TextInput
                 style={{height: 40, width: '80%', fontSize:14 }}
                 defaultValue = {this.answer}
@@ -145,17 +96,5 @@ class EditorScreen extends React.Component {
     }
 }
 
-const styles = StyleSheet.create({
-    qa: {
-        color: 'black',
-        fontWeight: 'bold',
-        fontSize: 20,
-      },
-      err: {
-        color: 'red',
-        fontWeight: 'bold',
-        fontSize: 15,
-      },
-  });
 
 module.exports = EditorScreen;

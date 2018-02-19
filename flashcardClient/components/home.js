@@ -1,43 +1,62 @@
 import React from 'react';
 import { View, Text, Button, TouchableOpacity, StyleSheet } from 'react-native';
-import {refreshList} from '../common.js';
+
+import {refreshList, styles} from '../common.js';
 
 
 class HomeScreen extends React.Component {
     constructor(props) {
         super(props);
-        refreshList(this);
-        this.state = {disabledEditButton : true}
-        // TODO: Is there a better way?
-        this.that = this;
-        this.cardIndex = 0;
+        refreshList(this.refreshCallback);
+        this.state = {disabledEditButton : true, message:''}
+        this.cardIndex = -1;
+        this.showQuestion = true;
     }
 
     static navigationOptions = {
         title: 'Flashcards',
     };
 
-    showCard() {
+
+    refreshCallback = (response) => {
+        this.setState({cards: response});
+        this.setState({disabledEditButton : this.state.cards.length < 1});  
+        // Select a card only if there was none selected
+        if (this.cardIndex == -1) {
+            this.selectRandomCard();  
+            this.setState({next:true});    
+        }
+   }
+    
+
+    selectRandomCard() {
+        this.cardIndex = -1;
+        this.showQuestion = Math.random() > 0.5;
         if (this.state.cards != null) {
             // choose random card
             var cardNum = this.state.cards.length;
             if (cardNum > 0) {
                 this.cardIndex = Math.floor(Math.random() * cardNum);
-                // choose randomly to show question or answer
-                if (Math.random() > 0.5) {
-                    return(
-                        <Text style={styles.qa}>Question: {this.state.cards[this.cardIndex].question}</Text>
-                    );
-                } else {
-                    return(
-                        <Text style={styles.qa}>Answer: {this.state.cards[this.cardIndex].answer}</Text>
-                    );
-                }    
+            }
+        }
+    }
+
+    showCard() {
+        if (this.cardIndex >= 0) {  
+            // choose randomly to show question or answer
+            if (this.showQuestion) {
+                return(
+                    <Text style={styles.qa}>Question: {this.state.cards[this.cardIndex].question}</Text>
+                );
             } else {
                 return(
-                    <Text style={styles.qa}>No cards found in DB</Text>
-                );            
-            }
+                    <Text style={styles.qa}>Answer: {this.state.cards[this.cardIndex].answer}</Text>
+                );
+            }    
+        } else {
+            return(
+                <Text style={styles.qa}>No cards found in DB</Text>
+            );            
         }
     }
 
@@ -47,11 +66,15 @@ class HomeScreen extends React.Component {
             <View style={{ flex: 5, alignItems: 'center', justifyContent: 'center'}}>
                 {this.showCard()}
             </View>
+            <View style={styles.toast}>
+                <Text>{this.state.message}</Text>
+            </View>
             <View style={{ flex: 1, flexDirection:'row', alignItems: 'center', justifyContent: 'space-around',
                     backgroundColor:'lightgrey' }}>
                 <Button style={{margin: 10}}
                     title="Next"
                     onPress={() => {
+                        this.selectRandomCard();
                         this.setState({next:true});
                     }}
                 />
@@ -62,8 +85,11 @@ class HomeScreen extends React.Component {
                     this.props.navigation.navigate('Editor', {
                         card: this.state.cards[this.cardIndex],
                         new: false,
-                        onGoBack: () => {refreshList(this.that)}
-                    })
+                        onGoBack: (message) => {
+                            refreshList(this.refreshCallback);
+                            this.setState({"message" : message});
+                            setTimeout(() => {this.setState({message:''})}, 3000);
+                        }                    })
                 }}
                 />
                 <Button
@@ -71,7 +97,11 @@ class HomeScreen extends React.Component {
                 onPress={() => {
                     this.props.navigation.navigate('Editor', {
                         new: true,
-                        onGoBack: () => {refreshList(this.that)}
+                        onGoBack: (message) => {
+                            refreshList(this.refreshCallback);
+                            this.setState({"message" : message});
+                            setTimeout(() => {this.setState({message:''})}, 3000);
+                        }                    
                     })
                 }}
                 />
@@ -87,14 +117,6 @@ class HomeScreen extends React.Component {
     }
 }
 
-
-const styles = StyleSheet.create({
-    qa: {
-      color: 'black',
-      fontWeight: 'bold',
-      fontSize: 30,
-    },
-});
 
 module.exports = HomeScreen;
   

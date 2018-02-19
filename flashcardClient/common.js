@@ -1,16 +1,99 @@
+import { StyleSheet } from 'react-native';
+
+
 export const SERVER_ADDR = "http://192.168.1.21:8080";
 
-export const refreshList = (that) => {
+export const refreshList = (callback) => {
     // get all cards from the server
     fetch(SERVER_ADDR + "/cards")
     .then((response) => response.json())
     .then((responseJson) => {
-        that.setState({cards: responseJson});
-        that.setState({disabledEditButton : that.state.cards.length < 1});
+        callback(responseJson);
     })
     .catch ((error) => {
-        alert(error);
+        alert("refreshList error: " + error);
     });        
 }
+
+export const insertCard = (question, answer, callback) => {
+    fetch(SERVER_ADDR + "/cards", 
+    {
+    method: 'POST',
+    headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        "question": question,
+        "answer": answer
+    }),
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+        callback(responseJson);
+    })
+    .catch((error) => {
+        alert(error);  
+    })    
+}
+
+export const modifyCard = (id, question, answer, callback) => {
+    fetch(SERVER_ADDR + "/cards/" + id, 
+    {
+    method: 'PATCH',
+    headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        "question": question,
+        "answer": answer
+    }),
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+        callback(responseJson);
+    })
+    .catch((error) => {
+        alert(error);  
+    })
+}
+
+
+export const styles = StyleSheet.create({
+    qa: {
+      color: 'black',
+      fontWeight: 'bold',
+      fontSize: 30,
+    },
+    toast: {
+        height:40,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    qaeditor: {
+        color: 'black',
+        fontWeight: 'bold',
+        fontSize: 20,
+    },
+    err: {
+        color: 'red',
+        fontWeight: 'bold',
+        fontSize: 15,
+    },
+    list: {
+        width: "100%",
+    },
+    qachooser: {
+        color: 'black',
+        fontWeight: 'bold',
+        fontSize: 15,
+    },
+    toast: {
+        height:40,
+        alignItems: 'center',
+        justifyContent: 'center'
+    }  
+});
 
 

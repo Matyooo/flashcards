@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Button, TouchableOpacity, List, FlatList, ListItem, StyleSheet } from 'react-native';
-import {refreshList} from '../common.js';
+import {refreshList, styles} from '../common.js';
 
 class ChooserScreen extends React.Component {
     
@@ -10,12 +10,16 @@ class ChooserScreen extends React.Component {
 
     constructor(props) {
         super(props);
-        // TODO: is there a better way?
-        this.that = this;
-        this.state = {cards:[]};
+        this.refreshCallback = this.refreshCallback.bind(this);
+
+        this.state = {cards:[], message:''};
         this._renderItem = this._renderItem.bind(this);
-        refreshList(this);
+        refreshList(this.refreshCallback);
     }
+
+    refreshCallback = (response) => {
+        this.setState({cards: response});
+   }
 
     // item renderer for FlatList
     _renderItem(card) {
@@ -25,13 +29,17 @@ class ChooserScreen extends React.Component {
                     this.props.navigation.navigate('Editor', {
                         card: card.item,
                         new: false,
-                        onGoBack: () => {refreshList(this.that)}
+                        onGoBack: (message) => {
+                            refreshList(this.refreshCallback);
+                            this.setState({"message" : message});
+                            setTimeout(() => {this.setState({message:''})}, 3000);
+                        }
                     })
                 }}
             >
                 <View style={{flex: 1, alignItems: 'center'}}>
-                    <Text style={styles.qa}>Q: {card.item.question}</Text>
-                    <Text style={styles.qa}>A: {card.item.answer}</Text>  
+                    <Text style={styles.qachooser}>Q: {card.item.question}</Text>
+                    <Text style={styles.qachooser}>A: {card.item.answer}</Text>  
                 </View>
             </TouchableOpacity>
         );
@@ -67,13 +75,20 @@ class ChooserScreen extends React.Component {
             <View style={{ flex: 5, alignItems: 'center', justifyContent: 'center'}}>
                 {this.CardFlatList()}
             </View>
+            <View style={styles.toast}>
+                <Text>{this.state.message}</Text>
+            </View>
             <View style={{ flex: 1, flexDirection:'row', alignItems: 'center', justifyContent: 'space-around',
                 backgroundColor:'lightgrey' }}>
                 <Button title='New Card'
                     onPress={() => {
                         this.props.navigation.navigate('Editor', {
                             new: true,
-                            onGoBack: () => {refreshList(this.that)}
+                            onGoBack: (message) => {
+                                refreshList(this.refreshCallback);
+                                this.setState({"message" : message});
+                                setTimeout(() => {this.setState({message:''})}, 3000);
+                            }
                         })
                     }}
                 />    
@@ -82,17 +97,5 @@ class ChooserScreen extends React.Component {
       );
     }
 }
-
-const styles = StyleSheet.create({
-    list: {
-        width: "100%",
-    },
-    qa: {
-        color: 'black',
-        fontWeight: 'bold',
-        fontSize: 15,
-      },  
-});
-
 
 module.exports = ChooserScreen;
