@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Button, TouchableOpacity, StyleSheet } from 'react-native';
-import {refreshList} from './common.js';
+import {refreshList} from '../common.js';
+
 
 class HomeScreen extends React.Component {
     constructor(props) {
@@ -9,13 +10,12 @@ class HomeScreen extends React.Component {
         this.state = {disabledEditButton : true}
         // TODO: Is there a better way?
         this.that = this;
+        this.cardIndex = 0;
     }
-    
-    cardIndex = 0;
 
     static navigationOptions = {
         title: 'Flashcards',
-      };
+    };
 
     showCard() {
         if (this.state.cards != null) {

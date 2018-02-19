@@ -1,14 +1,11 @@
-// In App.js in a new project
-
 import React from 'react';
 import { StackNavigator } from 'react-navigation';
 
+var ChooserScreen = require('./components/chooser.js');
+var EditorScreen = require('./components/editor.js');
+var HomeScreen = require('./components/home.js');
 
-var ChooserScreen = require('./chooser.js');
-var EditorScreen = require('./editor.js');
-var HomeScreen = require('./home.js');
-
-
+// Main navigator
 const RootStack = StackNavigator({
     Editor: {
         screen: EditorScreen,
@@ -35,8 +32,8 @@ const RootStack = StackNavigator({
     },
 );
   
-  export default class App extends React.Component {
-    render() {
-      return <RootStack />;
-    }
+export default class App extends React.Component {
+  render() {
+    return <RootStack />;
   }
+}

@@ -1,11 +1,12 @@
 import React from 'react';
 import { View, Text, TextInput, ToastAndroid, Button, StyleSheet} from 'react-native';
-import {SERVER_ADDR} from './common.js';
+import {SERVER_ADDR} from '../common.js';
 
 class EditorScreen extends React.Component {
 
     constructor(props) {
         super(props);
+        // TODO: Is there a better way to do this
         this.save = this.save.bind(this);
         this.question = this.props.navigation.state.params.new
             ? "" : this.props.navigation.state.params.card.question;
@@ -17,7 +18,6 @@ class EditorScreen extends React.Component {
 
     static navigationOptions = ({ navigation }) => {
         const { params } = navigation.state;
-        
         return {
           title: params.new ? "New card" : "Edit card",
         }
@@ -25,7 +25,6 @@ class EditorScreen extends React.Component {
 
 
     insertNewCard() {
-        // POST new card
         fetch(SERVER_ADDR + "/cards", 
         {
         method: 'POST',
@@ -56,7 +55,6 @@ class EditorScreen extends React.Component {
 
 
     modifyCard() {
-        // PATCH modificate card
         fetch(SERVER_ADDR + "/cards/" + this.props.navigation.state.params.card.id, 
         {
         method: 'PATCH',
@@ -116,7 +114,7 @@ class EditorScreen extends React.Component {
             <View style={{ flex: 5, alignItems: 'center', justifyContent: 'flex-start'}}>
             <Text style={styles.qa}>Question</Text>
             <TextInput
-                style={{height: 40, width: '80%' }}
+                style={{height: 40, width: '80%', fontSize:14 }}
                 defaultValue = {this.question}
                 onChangeText={(text) => {
                     this.question = text;
@@ -125,7 +123,7 @@ class EditorScreen extends React.Component {
             <Text style={styles.err}>{this.state.questionError}</Text>
             <Text style={styles.qa}>Answer</Text>
             <TextInput
-                style={{height: 40, width: '80%' }}
+                style={{height: 40, width: '80%', fontSize:14 }}
                 defaultValue = {this.answer}
                 onChangeText={(text) => this.answer = text}
             />

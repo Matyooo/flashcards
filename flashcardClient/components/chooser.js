@@ -1,24 +1,23 @@
 import React from 'react';
 import { View, Text, Button, TouchableOpacity, List, FlatList, ListItem, StyleSheet } from 'react-native';
-import {refreshList} from './common.js';
+import {refreshList} from '../common.js';
 
 class ChooserScreen extends React.Component {
     
     static navigationOptions = {
         title: 'Choose to edit',
-      };
+    };
 
     constructor(props) {
         super(props);
-        this.state = {cards:[]};
-
-        this._renderItem = this._renderItem.bind(this);
-        refreshList(this);
-        
         // TODO: is there a better way?
         this.that = this;
+        this.state = {cards:[]};
+        this._renderItem = this._renderItem.bind(this);
+        refreshList(this);
     }
 
+    // item renderer for FlatList
     _renderItem(card) {
         return(
             <TouchableOpacity
@@ -61,6 +60,7 @@ class ChooserScreen extends React.Component {
                 />
         );
     }
+
     render() {
       return (   
         <View style={{ flex: 1}}>

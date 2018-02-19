@@ -13,6 +13,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// MongoDB address
 const DB_ADDR = "localhost:27017"
 
 type Card struct {
