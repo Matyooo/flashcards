@@ -1,13 +1,12 @@
 import React from 'react';
 import { View, Text, Button, TouchableOpacity, StyleSheet } from 'react-native';
-
-import {refreshList, styles} from '../common.js';
+import {getCards, styles} from '../common.js';
 
 
 class HomeScreen extends React.Component {
     constructor(props) {
         super(props);
-        refreshList(this.refreshCallback);
+        getCards(this.refreshCallback);
         this.state = {disabledEditButton : true, message:''}
         this.cardIndex = -1;
         this.showQuestion = true;
@@ -28,6 +27,12 @@ class HomeScreen extends React.Component {
         }
    }
     
+    goBack = (message) => {
+        getCards(this.refreshCallback);
+        this.setState({"message" : message});
+        setTimeout(() => {this.setState({message:''})}, 3000);
+    }
+
 
     selectRandomCard() {
         this.cardIndex = -1;
@@ -85,11 +90,8 @@ class HomeScreen extends React.Component {
                     this.props.navigation.navigate('Editor', {
                         card: this.state.cards[this.cardIndex],
                         new: false,
-                        onGoBack: (message) => {
-                            refreshList(this.refreshCallback);
-                            this.setState({"message" : message});
-                            setTimeout(() => {this.setState({message:''})}, 3000);
-                        }                    })
+                        onGoBack: this.goBack           
+                    })
                 }}
                 />
                 <Button
@@ -97,11 +99,7 @@ class HomeScreen extends React.Component {
                 onPress={() => {
                     this.props.navigation.navigate('Editor', {
                         new: true,
-                        onGoBack: (message) => {
-                            refreshList(this.refreshCallback);
-                            this.setState({"message" : message});
-                            setTimeout(() => {this.setState({message:''})}, 3000);
-                        }                    
+                        onGoBack: this.goBack           
                     })
                 }}
                 />
@@ -116,7 +114,6 @@ class HomeScreen extends React.Component {
       );
     }
 }
-
 
 module.exports = HomeScreen;
   

@@ -1,9 +1,8 @@
 import { StyleSheet } from 'react-native';
 
+const SERVER_ADDR = "http://192.168.1.21:8080";
 
-export const SERVER_ADDR = "http://192.168.1.21:8080";
-
-export const refreshList = (callback) => {
+export const getCards = (callback) => {
     // get all cards from the server
     fetch(SERVER_ADDR + "/cards")
     .then((response) => response.json())
@@ -33,7 +32,7 @@ export const insertCard = (question, answer, callback) => {
         callback(responseJson);
     })
     .catch((error) => {
-        alert(error);  
+        alert("insertCard error: " + error);  
     })    
 }
 
@@ -55,7 +54,7 @@ export const modifyCard = (id, question, answer, callback) => {
         callback(responseJson);
     })
     .catch((error) => {
-        alert(error);  
+        alert("modifyCard error: " + error);  
     })
 }
 

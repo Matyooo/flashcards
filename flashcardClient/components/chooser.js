@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Button, TouchableOpacity, List, FlatList, ListItem, StyleSheet } from 'react-native';
-import {refreshList, styles} from '../common.js';
+import {getCards, styles} from '../common.js';
 
 class ChooserScreen extends React.Component {
     
@@ -14,12 +14,18 @@ class ChooserScreen extends React.Component {
 
         this.state = {cards:[], message:''};
         this._renderItem = this._renderItem.bind(this);
-        refreshList(this.refreshCallback);
+        getCards(this.refreshCallback);
     }
 
     refreshCallback = (response) => {
         this.setState({cards: response});
    }
+
+    goBack = (message) => {
+        getCards(this.refreshCallback);
+        this.setState({"message" : message});
+        setTimeout(() => {this.setState({message:''})}, 3000);
+    }
 
     // item renderer for FlatList
     _renderItem(card) {
@@ -29,11 +35,7 @@ class ChooserScreen extends React.Component {
                     this.props.navigation.navigate('Editor', {
                         card: card.item,
                         new: false,
-                        onGoBack: (message) => {
-                            refreshList(this.refreshCallback);
-                            this.setState({"message" : message});
-                            setTimeout(() => {this.setState({message:''})}, 3000);
-                        }
+                        onGoBack: this.goBack
                     })
                 }}
             >
@@ -84,11 +86,7 @@ class ChooserScreen extends React.Component {
                     onPress={() => {
                         this.props.navigation.navigate('Editor', {
                             new: true,
-                            onGoBack: (message) => {
-                                refreshList(this.refreshCallback);
-                                this.setState({"message" : message});
-                                setTimeout(() => {this.setState({message:''})}, 3000);
-                            }
+                            onGoBack: this.goBack
                         })
                     }}
                 />    
