@@ -11,9 +11,11 @@ class ChooserScreen extends React.Component {
     constructor(props) {
         super(props);
         this.refreshCallback = this.refreshCallback.bind(this);
-
-        this.state = {cards:[], message:''};
         this._renderItem = this._renderItem.bind(this);
+        this.state = {
+            cards:[], 
+            message:''
+        };
         getCards(this.refreshCallback);
     }
 
@@ -47,7 +49,7 @@ class ChooserScreen extends React.Component {
         );
     }
 
-    FlatListItemSeparator = () => {
+    flatListItemSeparator = () => {
         return (
           <View
                 style={{
@@ -59,13 +61,13 @@ class ChooserScreen extends React.Component {
         );
       }
 
-    CardFlatList = () => {
+    cardsFlatList = () => {
         return(
                 <FlatList
                     style={styles.list}
                     data={this.state.cards}
                     renderItem={this._renderItem}
-                    ItemSeparatorComponent = {this.FlatListItemSeparator}
+                    ItemSeparatorComponent = {this.flatListItemSeparator}
                     keyExtractor={item => item.id}
                 />
         );
@@ -75,7 +77,7 @@ class ChooserScreen extends React.Component {
       return (   
         <View style={{ flex: 1}}>
             <View style={{ flex: 5, alignItems: 'center', justifyContent: 'center'}}>
-                {this.CardFlatList()}
+                {this.cardsFlatList()}
             </View>
             <View style={styles.toast}>
                 <Text>{this.state.message}</Text>

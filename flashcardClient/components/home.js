@@ -7,23 +7,26 @@ class HomeScreen extends React.Component {
     constructor(props) {
         super(props);
         getCards(this.refreshCallback);
-        this.state = {disabledEditButton : true, message:''}
-        this.cardIndex = -1;
-        this.showQuestion = true;
+        this.state = {
+            disabledEditButton : true,
+            message:'',
+            cardIndex: -1,
+            showQuestion: true,
+            cards:[]
+        }
     }
 
     static navigationOptions = {
         title: 'Flashcards',
     };
 
-
     refreshCallback = (response) => {
-        this.setState({cards: response});
-        this.setState({disabledEditButton : this.state.cards.length < 1});  
+        this.setState({
+            cards: response, 
+            disabledEditButton : response.length < 1});
         // Select a card only if there was none selected
-        if (this.cardIndex == -1) {
+        if (this.state.cardIndex == -1) {
             this.selectRandomCard();  
-            this.setState({next:true});    
         }
    }
     
@@ -35,27 +38,28 @@ class HomeScreen extends React.Component {
 
 
     selectRandomCard = () => {
-        this.cardIndex = -1;
-        this.showQuestion = Math.random() > 0.5;
+        var index = -1;
+        this.state.showQuestion = Math.random() > 0.5;
         if (this.state.cards != null) {
             // choose random card
             var cardNum = this.state.cards.length;
             if (cardNum > 0) {
-                this.cardIndex = Math.floor(Math.random() * cardNum);
+                index = Math.floor(Math.random() * cardNum);
             }
         }
+        this.setState({cardIndex: index})
     }
 
     showCard = () => {
-        if (this.cardIndex >= 0) {  
+        if (this.state.cardIndex >= 0) {  
             // choose randomly to show question or answer
-            if (this.showQuestion) {
+            if (this.state.showQuestion) {
                 return(
-                    <Text style={styles.qa}>Question: {this.state.cards[this.cardIndex].question}</Text>
+                    <Text style={styles.qa}>Question: {this.state.cards[this.state.cardIndex].question}</Text>
                 );
             } else {
                 return(
-                    <Text style={styles.qa}>Answer: {this.state.cards[this.cardIndex].answer}</Text>
+                    <Text style={styles.qa}>Answer: {this.state.cards[this.state.cardIndex].answer}</Text>
                 );
             }    
         } else {
@@ -80,7 +84,6 @@ class HomeScreen extends React.Component {
                     title="Next"
                     onPress={() => {
                         this.selectRandomCard();
-                        this.setState({next:true});
                     }}
                 />
                 <Button
@@ -88,7 +91,7 @@ class HomeScreen extends React.Component {
                 disabled = {this.state.disabledEditButton}
                 onPress={() => {
                     this.props.navigation.navigate('Editor', {
-                        card: this.state.cards[this.cardIndex],
+                        card: this.state.cards[this.state.cardIndex],
                         new: false,
                         onGoBack: this.goBack           
                     })

@@ -8,12 +8,14 @@ class EditorScreen extends React.Component {
         super(props);
         this.save = this.save.bind(this);
         this.callback = this.callback.bind(this);
-        this.question = this.props.navigation.state.params.new
-            ? "" : this.props.navigation.state.params.card.question;
-        this.answer = this.props.navigation.state.params.new 
-            ? "" : this.props.navigation.state.params.card.answer;
-
-        this.state = {questionError : "", answerError: ""};
+        this.state = {
+            question: this.props.navigation.state.params.new
+                ? "" : this.props.navigation.state.params.card.question,
+            answer: this.props.navigation.state.params.new 
+                ? "" : this.props.navigation.state.params.card.answer,
+            questionError : "", 
+            answerError: "",
+        };
     }
 
     static navigationOptions = ({ navigation }) => {
@@ -36,26 +38,23 @@ class EditorScreen extends React.Component {
       }
 
     save = () => {
-        if (!this.valid) {
-            return;
-        }
         if (this.props.navigation.state.params.new) {
-            insertCard(this.question, this.answer, this.callback);
+            insertCard(this.state.question, this.state.answer, this.callback);
         } else {
             modifyCard(this.props.navigation.state.params.card.id, 
-                this.question, this.answer, this.callback);
+                this.state.question, this.state.answer, this.callback);
         }
     }
 
     validateQuestion = () => {
         var regex = /.{8,}\?$/;
-        this.valid = regex.test(this.question);
-        if (this.valid) {
+        if (regex.test(this.state.question)) {
             this.setState({questionError:""});
+            return true;
         } else {
             this.setState({questionError:"Question must end with ? and be at least 8 characters long!"});            
+            return false;
         }
-        return this.valid;
     }
 
 
@@ -66,17 +65,17 @@ class EditorScreen extends React.Component {
             <Text style={styles.qaeditor}>Question</Text>
             <TextInput
                 style={{height: 40, width: '80%', fontSize:14 }}
-                defaultValue = {this.question}
+                defaultValue = {this.state.question}
                 onChangeText={(text) => {
-                    this.question = text;
+                    this.state.question = text;
                 }}
             />
             <Text style={styles.err}>{this.state.questionError}</Text>
             <Text style={styles.qaeditor}>Answer</Text>
             <TextInput
                 style={{height: 40, width: '80%', fontSize:14 }}
-                defaultValue = {this.answer}
-                onChangeText={(text) => this.answer = text}
+                defaultValue = {this.state.answer}
+                onChangeText={(text) => this.state.answer = text}
             />
             <Text style={styles.err}>{this.state.answerError}</Text>
 
