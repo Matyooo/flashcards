@@ -1,61 +1,55 @@
-import { StyleSheet } from 'react-native';
 
-const SERVER_ADDR = "http://192.168.1.21:8080";
+import { StyleSheet } from 'react-native';
+const request = require('superagent');
+
+const SERVER_ADDR = 'http://192.168.1.21:8080';
 
 export const getCards = (callback) => {
-    // get all cards from the server
-    fetch(SERVER_ADDR + "/cards")
-    .then((response) => response.json())
-    .then((responseJson) => {
-        callback(responseJson);
-    })
-    .catch ((error) => {
-        alert("refreshList error: " + error);
-    });        
+    request
+    .get(SERVER_ADDR + "/cards")
+    .set('Accept', 'application/json')
+    .set('Content-Type', 'application/json')
+    .end((err, res) => {
+        if (err) {
+            alert(err);
+        } else {
+            callback(res.body);
+        }
+    });
 }
 
 export const insertCard = (question, answer, callback) => {
-    fetch(SERVER_ADDR + "/cards", 
-    {
-    method: 'POST',
-    headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
+    request.post(SERVER_ADDR + "/cards")
+    .set('Accept', 'application/json')
+    .set('Content-Type', 'application/json')
+    .send({
         "question": question,
         "answer": answer
-    }),
     })
-    .then((response) => response.json())
-    .then((responseJson) => {
-        callback(responseJson);
-    })
-    .catch((error) => {
-        alert("insertCard error: " + error);  
-    })    
+    .end((err, res) => {
+        if (err) {
+            alert("insertCard error: " + err);
+        } else {
+            callback(res.body);
+        }
+    });
 }
 
 export const modifyCard = (id, question, answer, callback) => {
-    fetch(SERVER_ADDR + "/cards/" + id, 
-    {
-    method: 'PATCH',
-    headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
+    request.patch(SERVER_ADDR + "/cards/" + id)
+    .set('Accept', 'application/json')
+    .set('Content-Type', 'application/json')
+    .send({
         "question": question,
         "answer": answer
-    }),
     })
-    .then((response) => response.json())
-    .then((responseJson) => {
-        callback(responseJson);
-    })
-    .catch((error) => {
-        alert("modifyCard error: " + error);  
-    })
+    .end((err, res) => {
+        if (err) {
+            alert("modifyCard error: " + err);
+        } else {
+            callback(res.body);
+        }
+    });
 }
 
 

@@ -69,15 +69,6 @@ func handlerCardsPOST(w http.ResponseWriter, r *http.Request) {
 			newCard.Question, newCard.Answer)
 	}
 
-	if strings.Contains(r.Header.Get("Content-Type"),
-		"application/x-www-form-urlencoded") {
-		// decode FORM request into Card
-		r.ParseForm()
-		log.Printf("Request FORM data (Question: %s, Answer: %s)\n",
-			r.FormValue("question"), r.FormValue("answer"))
-		newCard = NewCard{r.FormValue("question"), r.FormValue("answer")}
-	}
-
 	// format check
 	if newCard.Answer != "" {
 		// insert into db

@@ -25,7 +25,7 @@ class EditorScreen extends React.Component {
 
 
 
-    callback(response) {
+    callback = (response) => {
         if (response.status != "ANSWER_CHECK_FAIL") {
             this.props.navigation.state.params.onGoBack(response.message);
             this.props.navigation.goBack();    
@@ -35,7 +35,7 @@ class EditorScreen extends React.Component {
         }        
       }
 
-    save() {
+    save = () => {
         if (!this.valid) {
             return;
         }
@@ -47,7 +47,7 @@ class EditorScreen extends React.Component {
         }
     }
 
-    validateQuestion(){
+    validateQuestion = () => {
         var regex = /.{8,}\?$/;
         this.valid = regex.test(this.question);
         if (this.valid) {
@@ -59,7 +59,7 @@ class EditorScreen extends React.Component {
     }
 
 
-    render() {    
+    render = () => {    
         return (
             <View style={{ flex: 1}}>
             <View style={{ flex: 5, alignItems: 'center', justifyContent: 'flex-start'}}>

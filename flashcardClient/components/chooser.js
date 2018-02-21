@@ -28,7 +28,7 @@ class ChooserScreen extends React.Component {
     }
 
     // item renderer for FlatList
-    _renderItem(card) {
+    _renderItem = (card) => {
         return(
             <TouchableOpacity
                 onPress={() => {
@@ -59,7 +59,7 @@ class ChooserScreen extends React.Component {
         );
       }
 
-    CardFlatList() {
+    CardFlatList = () => {
         return(
                 <FlatList
                     style={styles.list}
@@ -71,7 +71,7 @@ class ChooserScreen extends React.Component {
         );
     }
 
-    render() {
+    render = () => {
       return (   
         <View style={{ flex: 1}}>
             <View style={{ flex: 5, alignItems: 'center', justifyContent: 'center'}}>

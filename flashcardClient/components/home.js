@@ -34,7 +34,7 @@ class HomeScreen extends React.Component {
     }
 
 
-    selectRandomCard() {
+    selectRandomCard = () => {
         this.cardIndex = -1;
         this.showQuestion = Math.random() > 0.5;
         if (this.state.cards != null) {
@@ -46,7 +46,7 @@ class HomeScreen extends React.Component {
         }
     }
 
-    showCard() {
+    showCard = () => {
         if (this.cardIndex >= 0) {  
             // choose randomly to show question or answer
             if (this.showQuestion) {
@@ -65,7 +65,7 @@ class HomeScreen extends React.Component {
         }
     }
 
-    render() {
+    render = () => {
       return (
           <View style={{ flex: 1}}>
             <View style={{ flex: 5, alignItems: 'center', justifyContent: 'center'}}>
