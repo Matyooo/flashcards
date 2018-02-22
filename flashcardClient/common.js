@@ -1,58 +1,5 @@
 
 import { StyleSheet } from 'react-native';
-const request = require('superagent');
-
-const SERVER_ADDR = 'http://192.168.1.21:8080';
-
-export const getCards = (callback) => {
-    return request
-        .get(SERVER_ADDR + "/cards")
-        .set('Accept', 'application/json')
-        .set('Content-Type', 'application/json')
-    .end((err, res) => {
-        if (err) {
-            alert(err);
-        } else {
-            callback(res.body);
-        }
-    });
-}
-
-export const insertCard = (question, answer, callback) => {
-    request
-    .post(SERVER_ADDR + "/cards")
-    .set('Accept', 'application/json')
-    .set('Content-Type', 'application/json')
-    .send({
-        "question": question,
-        "answer": answer
-    })
-    .end((err, res) => {
-        if (err) {
-            alert("insertCard error: " + err);
-        } else {
-            callback(res.body);
-        }
-    });
-}
-
-export const modifyCard = (id, question, answer, callback) => {
-    request.patch(SERVER_ADDR + "/cards/" + id)
-    .set('Accept', 'application/json')
-    .set('Content-Type', 'application/json')
-    .send({
-        "question": question,
-        "answer": answer
-    })
-    .end((err, res) => {
-        if (err) {
-            alert("modifyCard error: " + err);
-        } else {
-            callback(res.body);
-        }
-    });
-}
-
 
 export const styles = StyleSheet.create({
     qa: {
