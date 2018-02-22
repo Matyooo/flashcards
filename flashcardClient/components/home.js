@@ -1,65 +1,39 @@
 import React from 'react';
 import { View, Text, Button, TouchableOpacity, StyleSheet } from 'react-native';
-import {getCards, styles} from '../common.js';
+import { styles } from '../common.js';
+
+import { connect } from 'react-redux'; 
+import { getCardsAsync, showNotification, selectCard, initEditor } from '../actions';
 
 
 class HomeScreen extends React.Component {
     constructor(props) {
         super(props);
-        getCards(this.refreshCallback);
-        this.state = {
-            disabledEditButton : true,
-            message:'',
-            cardIndex: -1,
-            showQuestion: true,
-            cards:[]
-        }
+    }
+    
+    componentDidMount() {
+        this.props.getCards(() => showNotification('Cards loaded.'));
     }
 
     static navigationOptions = {
         title: 'Flashcards',
     };
-
-    refreshCallback = (response) => {
-        this.setState({
-            cards: response, 
-            disabledEditButton : response.length < 1});
-        // Select a card only if there was none selected
-        if (this.state.cardIndex == -1) {
-            this.selectRandomCard();  
-        }
-   }
     
     goBack = (message) => {
-        getCards(this.refreshCallback);
-        this.setState({"message" : message});
-        setTimeout(() => {this.setState({message:''})}, 3000);
-    }
-
-
-    selectRandomCard = () => {
-        var index = -1;
-        this.state.showQuestion = Math.random() > 0.5;
-        if (this.state.cards != null) {
-            // choose random card
-            var cardNum = this.state.cards.length;
-            if (cardNum > 0) {
-                index = Math.floor(Math.random() * cardNum);
-            }
-        }
-        this.setState({cardIndex: index})
+        this.props.getCards();
+        this.props.showNotification(message);
     }
 
     showCard = () => {
-        if (this.state.cardIndex >= 0) {  
+        if (this.props.cardIndex >= 0) {  
             // choose randomly to show question or answer
-            if (this.state.showQuestion) {
+            if (this.props.showQuestion) {
                 return(
-                    <Text style={styles.qa}>Question: {this.state.cards[this.state.cardIndex].question}</Text>
+                    <Text style={styles.qa}>Question: {this.props.cards[this.props.cardIndex].question}</Text>
                 );
             } else {
                 return(
-                    <Text style={styles.qa}>Answer: {this.state.cards[this.state.cardIndex].answer}</Text>
+                    <Text style={styles.qa}>Answer: {this.props.cards[this.props.cardIndex].answer}</Text>
                 );
             }    
         } else {
@@ -76,23 +50,26 @@ class HomeScreen extends React.Component {
                 {this.showCard()}
             </View>
             <View style={styles.toast}>
-                <Text>{this.state.message}</Text>
+                <Text>{this.props.loading ? "Loading cards..." : ""}{this.props.notification}</Text>
             </View>
             <View style={{ flex: 1, flexDirection:'row', alignItems: 'center', justifyContent: 'space-around',
                     backgroundColor:'lightgrey' }}>
                 <Button style={{margin: 10}}
                     title="Next"
                     onPress={() => {
-                        this.selectRandomCard();
+                        this.props.selectCard();
                     }}
                 />
                 <Button
                 title="Edit"
-                disabled = {this.state.disabledEditButton}
+                disabled = {this.props.cardIndex == -1}
                 onPress={() => {
+                    this.props.initEditor(false, 
+                        this.props.cards[this.props.cardIndex].question,
+                        this.props.cards[this.props.cardIndex].answer, 
+                        this.props.cards[this.props.cardIndex].id);
+                    
                     this.props.navigation.navigate('Editor', {
-                        card: this.state.cards[this.state.cardIndex],
-                        new: false,
                         onGoBack: this.goBack           
                     })
                 }}
@@ -100,8 +77,8 @@ class HomeScreen extends React.Component {
                 <Button
                 title="New"
                 onPress={() => {
+                    this.props.initEditor(true, '', '', '');
                     this.props.navigation.navigate('Editor', {
-                        new: true,
                         onGoBack: this.goBack           
                     })
                 }}
@@ -118,5 +95,25 @@ class HomeScreen extends React.Component {
     }
 }
 
-module.exports = HomeScreen;
+
+const mapStateToProps = (state) => {
+    return {
+        cards: state.FlashCardReducer.cards,
+        cardIndex: state.FlashCardReducer.cardIndex,
+        showQuestion: state.FlashCardReducer.showQuestion,
+        loading: state.FlashCardReducer.loading,
+        notification: state.FlashCardReducer.notification
+    };
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        getCards: (callback) => dispatch(getCardsAsync(callback)),
+        showNotification: (text) => dispatch(showNotification(text)),
+        selectCard: () => dispatch(selectCard()),
+        initEditor: (isnew, q, a, id) => dispatch(initEditor(isnew, q, a, id))
+    };
+};
+
+module.exports = connect(mapStateToProps, mapDispatchToProps)(HomeScreen);
   

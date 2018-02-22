@@ -5,10 +5,10 @@ const request = require('superagent');
 const SERVER_ADDR = 'http://192.168.1.21:8080';
 
 export const getCards = (callback) => {
-    request
-    .get(SERVER_ADDR + "/cards")
-    .set('Accept', 'application/json')
-    .set('Content-Type', 'application/json')
+    return request
+        .get(SERVER_ADDR + "/cards")
+        .set('Accept', 'application/json')
+        .set('Content-Type', 'application/json')
     .end((err, res) => {
         if (err) {
             alert(err);
@@ -19,7 +19,8 @@ export const getCards = (callback) => {
 }
 
 export const insertCard = (question, answer, callback) => {
-    request.post(SERVER_ADDR + "/cards")
+    request
+    .post(SERVER_ADDR + "/cards")
     .set('Accept', 'application/json')
     .set('Content-Type', 'application/json')
     .send({

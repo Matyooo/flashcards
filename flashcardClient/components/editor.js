@@ -1,6 +1,9 @@
 import React from 'react';
 import { View, Text, TextInput, Button, StyleSheet} from 'react-native';
-import {insertCard, modifyCard, styles} from '../common.js';
+import {styles} from '../common.js';
+
+import { connect } from 'react-redux'; 
+import { insertCardAsync, modifyCardAsync, showError, updateEditor } from '../actions';
 
 class EditorScreen extends React.Component {
 
@@ -8,14 +11,6 @@ class EditorScreen extends React.Component {
         super(props);
         this.save = this.save.bind(this);
         this.callback = this.callback.bind(this);
-        this.state = {
-            question: this.props.navigation.state.params.new
-                ? "" : this.props.navigation.state.params.card.question,
-            answer: this.props.navigation.state.params.new 
-                ? "" : this.props.navigation.state.params.card.answer,
-            questionError : "", 
-            answerError: "",
-        };
     }
 
     static navigationOptions = ({ navigation }) => {
@@ -25,38 +20,36 @@ class EditorScreen extends React.Component {
         }
     };
 
-
-
     callback = (response) => {
         if (response.status != "ANSWER_CHECK_FAIL") {
             this.props.navigation.state.params.onGoBack(response.message);
-            this.props.navigation.goBack();    
-            this.setState({answerError:""});
+            this.props.navigation.goBack();   
+            this.props.showError({answerError:""});
         } else {
-            this.setState({answerError:response.message});
+            this.props.showError({answerError:response.message});
         }        
       }
 
     save = () => {
-        if (this.props.navigation.state.params.new) {
-            insertCard(this.state.question, this.state.answer, this.callback);
+        if (this.props.new) {
+            this.props.insertCard(this.props.question, this.props.answer, 
+                this.callback);
         } else {
-            modifyCard(this.props.navigation.state.params.card.id, 
-                this.state.question, this.state.answer, this.callback);
+            this.props.modifyCard(this.props.cardId, this.props.question,
+                this.props.answer, this.callback);
         }
     }
 
     validateQuestion = () => {
         var regex = /.{8,}\?$/;
-        if (regex.test(this.state.question)) {
-            this.setState({questionError:""});
+        if (regex.test(this.props.question)) {
+            this.props.showError({questionError:""});
             return true;
         } else {
-            this.setState({questionError:"Question must end with ? and be at least 8 characters long!"});            
+            this.props.showError({questionError:"Question must end with ? and be at least 8 characters long!"});
             return false;
         }
     }
-
 
     render = () => {    
         return (
@@ -65,19 +58,21 @@ class EditorScreen extends React.Component {
             <Text style={styles.qaeditor}>Question</Text>
             <TextInput
                 style={{height: 40, width: '80%', fontSize:14 }}
-                defaultValue = {this.state.question}
+                defaultValue = {this.props.question}
                 onChangeText={(text) => {
-                    this.state.question = text;
+                    this.props.updateEditor(text, this.props.answer);
                 }}
             />
-            <Text style={styles.err}>{this.state.questionError}</Text>
+            <Text style={styles.err}>{this.props.questionError}</Text>
             <Text style={styles.qaeditor}>Answer</Text>
             <TextInput
                 style={{height: 40, width: '80%', fontSize:14 }}
-                defaultValue = {this.state.answer}
-                onChangeText={(text) => this.state.answer = text}
+                defaultValue = {this.props.answer}
+                onChangeText={(text) => {
+                    this.props.updateEditor(this.props.question, text);
+                }}
             />
-            <Text style={styles.err}>{this.state.answerError}</Text>
+            <Text style={styles.err}>{this.props.answerError}</Text>
 
             </View>
             <View style={{ flex: 1, flexDirection:'row', alignItems: 'center', justifyContent: 'space-around',
@@ -96,4 +91,24 @@ class EditorScreen extends React.Component {
 }
 
 
-module.exports = EditorScreen;
+const mapStateToProps = (state) => {
+    return {
+        question: state.FlashCardReducer.question,
+        answer: state.FlashCardReducer.answer,
+        questionError: state.FlashCardReducer.questionError,
+        answerError: state.FlashCardReducer.answerError,
+        new: state.FlashCardReducer.new,
+        cardId: state.FlashCardReducer.cardId
+    };
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        insertCard: (q, a, callback) => dispatch(insertCardAsync(q, a, callback)),
+        modifyCard: (id, q, a, callback) => dispatch(modifyCardAsync(id, q, a, callback)),
+        showError: (errors) => dispatch(showError(errors)),
+        updateEditor: (q, a) => dispatch(updateEditor(q, a))
+    };
+};
+
+module.exports = connect(mapStateToProps, mapDispatchToProps)(EditorScreen);
